@@ -25,7 +25,7 @@ export const App = () => {
         setIsLoading(true);
         const { hits, totalHits } = await fechImage(query, page);
 
-        setHitsImg([...hitsImg, ...hits]);
+        setHitsImg(someHits => [...someHits, ...hits]);
         setTotalHitsImg(totalHits);
       } catch (error) {
         setError(error.message);
@@ -34,7 +34,7 @@ export const App = () => {
       }
     };
     fechData();
-  }, [page, query, hitsImg]);
+  }, [page, query]);
 
   // -----------------------------Load Btn ---
   const onLoadMoreBtn = () => {
