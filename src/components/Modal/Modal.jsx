@@ -1,44 +1,40 @@
+import { useEffect } from 'react';
 import css from './Modal.module.css';
-import React from 'react';
 
-export class Modal extends React.Component {
-  componentDidMount() {
+export const Modal = ({ closeModal, modalUrl }) => {
+  useEffect(() => {
     document.body.style.overflow = 'hidden';
-    window.addEventListener('keydown', this.onKeyboardPress);
-  }
+    window.addEventListener('keydown', onKeyboardPress);
+    return () => {
+      document.body.style.overflow = 'auto';
+      window.removeEventListener('keydown', onKeyboardPress);
+    };
+  });
 
-  componentWillUnmount() {
-    document.body.style.overflow = 'auto';
-    window.removeEventListener('keydown', this.onKeyboardPress);
-  }
-
-  onKeyboardPress = evt => {
+  const onKeyboardPress = evt => {
     if (evt.code === 'Escape') {
-      this.props.closeModal();
+      closeModal();
     }
   };
 
-  onOverlayClick = evt => {
+  const onOverlayClick = evt => {
     if (evt.currentTarget === evt.target) {
-      this.props.closeModal();
+      closeModal();
     }
   };
 
-  render() {
-    const { modalUrl } = this.props;
-    return (
-      <div className={css.backdrop} onClick={this.onOverlayClick}>
-        <div className={css.modal}>
-          <button
-            type="button"
-            className={css.modalCloseBtn}
-            onClick={this.props.closeModal}
-          >
-            ✖
-          </button>
-          <img src={modalUrl} alt="Large img" />
-        </div>
+  return (
+    <div className={css.backdrop} onClick={onOverlayClick}>
+      <div className={css.modal}>
+        <button
+          type="button"
+          className={css.modalCloseBtn}
+          onClick={closeModal}
+        >
+          ✖
+        </button>
+        <img src={modalUrl} alt="Large img" />
       </div>
-    );
-  }
-}
+    </div>
+  );
+};

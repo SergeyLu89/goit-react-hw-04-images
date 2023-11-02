@@ -1,4 +1,4 @@
-import React from 'react';
+import { useState, useEffect } from 'react';
 import Notiflix from 'notiflix';
 
 import { fechImage } from 'api/api';
@@ -8,78 +8,70 @@ import { Button } from 'components/Button/Button';
 import { Loader } from './Loader/Loader';
 import { Modal } from './Modal/Modal';
 
-export class App extends React.Component {
-  state = {
-    hits: [],
-    query: '',
-    page: 1,
-    totalHits: null,
-    isLoading: false,
-    error: null,
-    showModal: false,
-    modalUrl: null,
-  };
+export const App = () => {
+  const [hitsImg, setHitsImg] = useState([]);
+  const [query, setQuery] = useState('');
+  const [page, setPage] = useState(1);
+  const [totalHitsImg, setTotalHitsImg] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [modalUrl, setModalUrl] = useState(null);
 
-  async componentDidUpdate(_, prevState) {
-    const { query, page } = this.state;
-
-    if (
-      this.state.page !== prevState.page ||
-      this.state.query !== prevState.query
-    ) {
+  useEffect(() => {
+    if (!query) return;
+    const fechData = async () => {
       try {
-        this.setState({ isLoading: true });
+        setIsLoading(true);
         const { hits, totalHits } = await fechImage(query, page);
 
-        this.setState({
-          hits: [...this.state.hits, ...hits],
-          totalHits: totalHits,
-        });
+        setHitsImg([...hitsImg, ...hits]);
+        setTotalHitsImg(totalHits);
       } catch (error) {
-        this.setState({ error: error.message });
+        setError(error.message);
       } finally {
-        this.setState({ isLoading: false });
+        setIsLoading(false);
       }
-    }
-  }
+    };
+    fechData();
+  }, [page, query]);
+
   // -----------------------------Load Btn ---
-  onLoadMoreBtn = () => {
-    this.setState(prevState => ({ page: prevState.page + 1 }));
+  const onLoadMoreBtn = () => {
+    setPage(page + 1);
   };
   // -----------------------------Load Btn ---
   // -----------------------------Form Submit ---
-  onSearchbarSubmit = query => {
-    this.setState({ query, page: 1, hits: [] });
+  const onSearchbarSubmit = query => {
+    setQuery(query);
+    setPage(1);
+    setHitsImg([]);
   };
   // -----------------------------Form Submit ---
   // ---------------------------- modal ---
-  openModal = url => {
-    this.setState({ showModal: true, modalUrl: url });
+  const openModal = url => {
+    setShowModal(true);
+    setModalUrl(url);
   };
 
-  closeModal = () => {
-    this.setState({ showModal: false });
+  const closeModal = () => {
+    setShowModal(false);
   };
   // ---------------------------- modal ---
-  render() {
-    const { hits, totalHits, isLoading, error, showModal, modalUrl } =
-      this.state;
-    return (
-      <div>
-        <Searchbar onSearchbarSubmit={this.onSearchbarSubmit} />
 
-        {hits.length !== 0 && (
-          <ImageGallery hits={hits} openModal={this.openModal} />
-        )}
-        {hits.length > 0 && hits.length < totalHits && (
-          <Button onLoadMoreBtn={this.onLoadMoreBtn} />
-        )}
-        {isLoading && <Loader />}
-        {error !== null && Notiflix.Notify.failure(`${error}`)}
-        {showModal && (
-          <Modal modalUrl={modalUrl} closeModal={this.closeModal} />
-        )}
-      </div>
-    );
-  }
-}
+  return (
+    <div>
+      <Searchbar onSearchbarSubmit={onSearchbarSubmit} />
+
+      {hitsImg.length !== 0 && (
+        <ImageGallery hits={hitsImg} openModal={openModal} />
+      )}
+      {hitsImg.length > 0 && hitsImg.length < totalHitsImg && (
+        <Button onLoadMoreBtn={onLoadMoreBtn} />
+      )}
+      {isLoading && <Loader />}
+      {error !== null && Notiflix.Notify.failure(`${error}`)}
+      {showModal && <Modal modalUrl={modalUrl} closeModal={closeModal} />}
+    </div>
+  );
+};
