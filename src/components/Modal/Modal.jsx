@@ -4,18 +4,18 @@ import css from './Modal.module.css';
 export const Modal = ({ closeModal, modalUrl }) => {
   useEffect(() => {
     document.body.style.overflow = 'hidden';
+
+    const onKeyboardPress = evt => {
+      if (evt.code === 'Escape') {
+        closeModal();
+      }
+    };
     window.addEventListener('keydown', onKeyboardPress);
     return () => {
       document.body.style.overflow = 'auto';
       window.removeEventListener('keydown', onKeyboardPress);
     };
-  });
-
-  const onKeyboardPress = evt => {
-    if (evt.code === 'Escape') {
-      closeModal();
-    }
-  };
+  }, [closeModal]);
 
   const onOverlayClick = evt => {
     if (evt.currentTarget === evt.target) {
