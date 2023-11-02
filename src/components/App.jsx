@@ -34,7 +34,7 @@ export const App = () => {
       }
     };
     fechData();
-  }, [page, query]);
+  }, [page, query, hitsImg]);
 
   // -----------------------------Load Btn ---
   const onLoadMoreBtn = () => {
